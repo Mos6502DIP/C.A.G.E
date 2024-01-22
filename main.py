@@ -5,62 +5,67 @@ import keyboard
 
 # Functions
 
+def screen_memory(y: int, x: int) -> list[list[str]]:
+    """
+    Creates a 2D array to store screen data
 
-def screen_memory(y, x):
-    mem = []
-    for i in range(x):
-        mem.append([])
-        for j in range(y):
-            mem[i].append(" ")
+    Uses list comprehension for increased performance
+    """
 
-    return mem
+    return [[" " for j in range(y)] for i in range(x)] # Use list comprehension for increased performance
 
 
-def draw(background_d, delay, sprites_json):
-    # draw sprites
+def draw(background_d: list, delay: float | int, sprites_json: dict) -> None:
+    """
+    Draws all sprites to the screen memory then updates the screen
+    """
 
+    # Make a copy of the screen parsed
     screen = copy.deepcopy(background_d)
+
+    # Loop over all sprites in the json and render each one chunk by chunk
     for sprite in sprites_json:
         for i in range(len(sprites_json[sprite]["Graphic"])):
             for j in range(len(sprites_json[sprite]["Graphic"][i])):
                 screen[sprites_json[sprite]["y"]+i][sprites_json[sprite]["x"]+j] = sprites_json[sprite]["Graphic"][i][j]
 
-    # print to screen
+    # Clear the terminal and then print screen memory
     time.sleep(delay)
     os.system("cls")
-    print('\n'.join([''.join(['{:4}'.format(item) for item in row])
-                     for row in screen]))
+    print('\n'.join([''.join(['{:4}'.format(item) for item in row]) for row in screen]))
+
+
 # Sprite, Axis, Amount, Sprite type it will collide with, Sprites json, display resolution
 
 
-def transform(sprite, axis, change, collide_sprites, sprites_json, resolution_x, resolution_y):
+def transform(sprite: dict, axis: str, change: float | int, collide_sprites: list, sprites_json: dict, resolution_x: int, resolution_y: int) -> None:
+    """
+    Translate (?) a sprite along a given axis at specified distance.
+    Only if it does not collide with any sprites parsed as a parameter
+    """
     collide = False
     # Hit point
     hit_boxes = {
-        "sprite_points": {
-
-        },
-        "compare_points": {
-
-        }
+        "sprite_points": {},
+        "compare_points": {}
     }
 
     # Direction stage
 
-    x_change = 0
-
-    y_change = 0
+    deltaX = 0
+    deltaY = 0
 
     if axis == "x":
-        x_change = x_change + change
+        deltaX = deltaX + change
     elif axis == "y":
-        y_change = y_change + change
+        deltaY = deltaY + change
+
     # Sprite stage
     for i in range(len(sprites_json[sprite]["Graphic"])):
         for j in range(len(sprites_json[sprite]["Graphic"][i])):
             hit_boxes["sprite_points"][f"{i},{j}"] = {}
-            hit_boxes["sprite_points"][f"{i},{j}"]["x"] = j + sprites_json[sprite]["x"] + x_change
-            hit_boxes["sprite_points"][f"{i},{j}"]["y"] = i + sprites_json[sprite]["y"] + y_change
+            hit_boxes["sprite_points"][f"{i},{j}"]["x"] = j + sprites_json[sprite]["x"] + deltaX
+            hit_boxes["sprite_points"][f"{i},{j}"]["y"] = i + sprites_json[sprite]["y"] + deltaY
 
     # object_s stage
     for object_s in sprites_json:
@@ -85,7 +90,10 @@ def transform(sprite, axis, change, collide_sprites, sprites_json, resolution_x,
         sprites_json[sprite][axis] = sprites_json[sprite][axis] + change
 
 
-def sprite_create(sprites_json, name, s_type, graphic, x, y):
+def sprite_create(sprites_json: dict, name: str, s_type:str, graphic: list[str], x: int, y: int) -> None:
+    """
+    Creates a sprite with a given name, type and graphic at given coords
+    """
     sprites_json[name] = {}
     sprites_json[name]["Type"] = s_type
     sprites_json[name]["Graphic"] = graphic
