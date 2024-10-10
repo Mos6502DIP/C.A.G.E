@@ -20,8 +20,5 @@ Make sure you have the following installed:
   
 You can install the `keyboard` library using pip:
 
-```bash
-pip install keyboard
-
-```
+'pip install keyboard'
 Peter Cakebread 2024 :3
